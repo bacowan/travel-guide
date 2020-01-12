@@ -4,13 +4,17 @@ import org.springframework.data.annotation.Id
 
 data class TranslationText(
     var language: String,
-    var value: String
+    var value: String,
+    var approved: Boolean
 )
 
+// if there is no description, this will just act as another tag for the interest point
 data class InterestPointDescription(
-    // if there is no description, this will just act as another tag for the interest point
-    var descriptionText: TranslationText?,
-    var tag: TranslationText
+    var values: List<TranslationText>,
+    var tag: Tag,
+    var likes: Int,
+    var dislikes: Int,
+    var submitter: String
 )
 
 data class InterestPoint(
