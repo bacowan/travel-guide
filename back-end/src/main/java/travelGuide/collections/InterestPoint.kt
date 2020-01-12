@@ -11,7 +11,7 @@ data class TranslationText(
 // if there is no description, this will just act as another tag for the interest point
 data class InterestPointDescription(
     var values: List<TranslationText>,
-    var tag: Tag,
+    var tag: String, // this only includes the English tag; to get other tags, you have to join with the tags collection
     var likes: Int,
     var dislikes: Int,
     var submitter: String
@@ -22,4 +22,5 @@ data class InterestPoint(
     var location: Array<Double>,
     var name: TranslationText,
     var subName: TranslationText,
-    var descriptions: Array<InterestPointDescription>)
+    var descriptions: Array<InterestPointDescription>,
+    var approved: Boolean)
