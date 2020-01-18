@@ -6,5 +6,11 @@ import org.springframework.data.geo.Point
 import travelGuide.collections.InterestPoint
 
 interface InterestPointRepositoryCustom {
-    fun findByLocation(point: Point, distance: Distance, tags: List<String>, pageable: Pageable): List<InterestPoint>
+        fun findByLocation(
+            lat: Double,
+            lon: Double,
+            distance: Double,
+            tags: List<String>,
+            approved: Boolean?,
+            pageable: Pageable) : List<InterestPoint>
 }

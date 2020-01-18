@@ -1,6 +1,7 @@
 package travelGuide.collections
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.mapping.DBRef
 
 data class TranslationText(
     var language: String,
@@ -11,16 +12,17 @@ data class TranslationText(
 // if there is no description, this will just act as another tag for the interest point
 data class InterestPointDescription(
     var values: List<TranslationText>,
+    @DBRef var tagId: String,
     var tag: String, // this only includes the English tag; to get other tags, you have to join with the tags collection
     var likes: Int,
     var dislikes: Int,
-    var submitter: String
+    @DBRef var submitter: String
 )
 
 data class InterestPoint(
     @Id val id: String? = null,
     var location: Array<Double>,
-    var name: TranslationText,
-    var subName: TranslationText,
+    var name: Array<TranslationText>,
+    var subName: Array<TranslationText>,
     var descriptions: Array<InterestPointDescription>,
     var approved: Boolean)

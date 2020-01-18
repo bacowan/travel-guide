@@ -1,12 +1,67 @@
 package travelGuide.repositories
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
-import org.springframework.data.geo.Distance
+import org.springframework.data.geo.Circle
 import org.springframework.data.geo.Point
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
 import travelGuide.collections.InterestPoint
 
 class InterestPointRepositoryImpl : InterestPointRepositoryCustom {
-    override fun findByLocation(point: Point, distance: Distance, tags: List<String>, pageable: Pageable): List<InterestPoint> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+    @Autowired
+    lateinit var mongoTemplate: MongoTemplate
+
+    override fun findByLocation(
+            lat: Double,
+            lon: Double,
+            distance: Double,
+            tags: List<String>,
+            approved: Boolean?,
+            pageable: Pageable) : List<InterestPoint> {
+
+        val query = Query()
+        if (approved != null) {
+            query.addCriteria(Criteria.where("approved").`is`(approved))
+        }
+        if (tags.any()) {
+            query.addCriteria(Criteria.where("descriptions").elemMatch(
+                Criteria.where("tag").`in`(tags)))
+        }
+        query.addCriteria(Criteria.where("location").withinSphere(Circle(Point(lat, lon), distance)))
+
+        return mongoTemplate.find(query, InterestPoint::class.java)
     }
 }
+
+//    //@Autowired constructor (private val mongoTemplate: MongoTemplate)
+//    : InterestPointRepositoryCustom {
+//
+//    //@Query("{\$and: [{ approved: true}, { descriptions: { \$elemMatch: { tag: { \$in: [ 'Cultural', 'test' ] } } } }, { location: { \$near: { \$geometry: { type: 'Point', coordinates: [ 139, 35 ] }, \$maxDistance: 500000 } }}]}")
+//    override fun findByLocation(
+//            point: Point,
+//            distance: Distance,
+//            approved: Boolean?,
+//            tags: List<String>,
+//            pageable: Pageable): List<InterestPoint> {
+//        val query = Query()
+//
+//        if (approved != null) {
+//            query.addCriteria(Criteria.where("approved").`is`(approved))
+//        }
+//        if (tags.any()) {
+//            tags.forEach {
+//                query.
+//                query.addCriteria(Criteria.("")
+//                )
+//            }
+//        }
+//
+//        query.addCriteria(Criteria
+//            .where("approved").`is`(approved)
+//            .and)
+//        return mongoTemplate.find()
+//    }
+//}
