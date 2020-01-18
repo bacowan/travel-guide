@@ -35,33 +35,3 @@ class InterestPointRepositoryImpl : InterestPointRepositoryCustom {
         return mongoTemplate.find(query, InterestPoint::class.java)
     }
 }
-
-//    //@Autowired constructor (private val mongoTemplate: MongoTemplate)
-//    : InterestPointRepositoryCustom {
-//
-//    //@Query("{\$and: [{ approved: true}, { descriptions: { \$elemMatch: { tag: { \$in: [ 'Cultural', 'test' ] } } } }, { location: { \$near: { \$geometry: { type: 'Point', coordinates: [ 139, 35 ] }, \$maxDistance: 500000 } }}]}")
-//    override fun findByLocation(
-//            point: Point,
-//            distance: Distance,
-//            approved: Boolean?,
-//            tags: List<String>,
-//            pageable: Pageable): List<InterestPoint> {
-//        val query = Query()
-//
-//        if (approved != null) {
-//            query.addCriteria(Criteria.where("approved").`is`(approved))
-//        }
-//        if (tags.any()) {
-//            tags.forEach {
-//                query.
-//                query.addCriteria(Criteria.("")
-//                )
-//            }
-//        }
-//
-//        query.addCriteria(Criteria
-//            .where("approved").`is`(approved)
-//            .and)
-//        return mongoTemplate.find()
-//    }
-//}
