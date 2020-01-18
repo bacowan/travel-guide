@@ -14,7 +14,7 @@ class TagController {
     private lateinit var tagRepository: TagRepository
 
     @GetMapping("/tags")
-    fun getLanguages(): List<Tag> {
+    fun getTags(): List<Tag> {
         return tagRepository.findAll().map { tag -> Tag(tag.translations.map { Translation(it.language, it.name) }) }
     }
 }

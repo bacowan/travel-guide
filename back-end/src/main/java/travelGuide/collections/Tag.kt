@@ -9,5 +9,6 @@ data class Translation(
 
 data class Tag(
     @Id val id: String,
+    var english: String,
     var translations: List<Translation>
 )

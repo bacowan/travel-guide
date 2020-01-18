@@ -5,5 +5,5 @@ data class InterestPointDescription(
     val likes: Int,
     val dislikes: Int,
     var submitter: String,
-    val values: List<TranslationText>
+    val value: String
 )

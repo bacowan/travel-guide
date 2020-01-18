@@ -2,8 +2,8 @@ package travelGuide.restResponses
 
 data class InterestPoint(
     val id: String,
-    val name: List<TranslationText>,
-    val sub_name: List<TranslationText>,
+    val name: String,
+    val sub_name: String,
     val lat: Double,
     val lon: Double,
     val approved: Boolean,

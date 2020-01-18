@@ -1,31 +1,36 @@
 package travelGuide.bootControllers
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.geo.Distance
 import org.springframework.data.geo.Metrics
 import org.springframework.data.geo.Point
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import travelGuide.collections.Tag
 import travelGuide.repositories.InterestPointRepository
+import travelGuide.repositories.TagRepository
 import travelGuide.repositories.UserRepository
 import travelGuide.restResponses.InterestPoint
+import travelGuide.restResponses.InterestPointDescription
 import travelGuide.restResponses.ShortInterestPoint
+import travelGuide.restResponses.TranslationText
 import java.util.concurrent.atomic.AtomicLong
 
 @RestController
 class InterestPointController {
     @Autowired
     private lateinit var interestPointRepository: InterestPointRepository
+    @Autowired
+    private lateinit var tagRepository: TagRepository
 
     @GetMapping("/interest_points")
-    fun interest_points(
+    fun getInterestPoints(
             @RequestParam(value = "lat", required = true) lat: Double,
             @RequestParam(value = "lon", required = true) lon: Double,
             @RequestParam(value = "distance", defaultValue = "5") distance: Double,
@@ -53,5 +58,55 @@ class InterestPointController {
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(interestPoints)
+    }
+
+    @GetMapping("/interest_points/{id}")
+    fun getInterestPointById(
+        @PathVariable id: String,
+        @RequestParam(value = "language", defaultValue = "English") language: String): ResponseEntity<InterestPoint> {
+        val interestPoint = interestPointRepository.findByIdOrNull(id)
+        return if (interestPoint?.id != null) {
+            val tags = if (language != "English") {
+                getAllTags()
+            }
+            else {
+                null
+            }
+
+            val response = InterestPoint(
+                id = interestPoint.id,
+                name = interestPoint.name.firstOrNull { it.language == language }?.value
+                    ?: interestPoint.name.firstOrNull { it.language == "English" }?.value
+                    ?: "",
+                sub_name = interestPoint.subName.firstOrNull { it.language == language }?.value
+                    ?: interestPoint.subName.firstOrNull { it.language == "English" }?.value
+                    ?: "",
+                lat = interestPoint.location.firstOrNull() ?: 0.0,
+                lon = interestPoint.location.elementAtOrNull(1) ?: 0.0,
+                approved = interestPoint.approved,
+                descriptions = interestPoint.descriptions.map { InterestPointDescription(
+                    tag = if (tags != null)
+                        tags.firstOrNull { tag -> tag.english == it.tag }?.translations?.firstOrNull { trans -> trans.language == language }?.name
+                            ?: it.tag
+                        else it.tag,
+                    likes = it.likes,
+                    dislikes = it.dislikes,
+                    submitter = it.submitter,
+                    value = it.values.firstOrNull() { value -> value.language == language }?.value ?: ""
+                ) }
+            )
+
+            return ResponseEntity.status(HttpStatus.OK)
+                .body(response)
+        }
+        else {
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .build()
+        }
+    }
+
+    @Cacheable
+    private fun getAllTags(): List<Tag> {
+        return tagRepository.findAll()
     }
 }
