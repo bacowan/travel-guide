@@ -21,8 +21,8 @@ data class InterestPointDescription(
 
 data class InterestPoint(
     @Id val id: String? = null,
-    var location: Array<Double>,
-    var name: Array<TranslationText>,
-    var subName: Array<TranslationText>,
-    var descriptions: Array<InterestPointDescription>,
+    var location: List<Double>,
+    var name: List<TranslationText>,
+    var subName: List<TranslationText>,
+    var descriptions: List<InterestPointDescription>,
     var approved: Boolean)

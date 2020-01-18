@@ -84,17 +84,11 @@ class InterestPointController {
                 lat = interestPoint.location.firstOrNull() ?: 0.0,
                 lon = interestPoint.location.elementAtOrNull(1) ?: 0.0,
                 approved = interestPoint.approved,
-                descriptions = interestPoint.descriptions.map { InterestPointDescription(
-                    tag = if (tags != null)
-                        tags.firstOrNull { tag -> tag.english == it.tag }?.translations?.firstOrNull { trans -> trans.language == language }?.name
-                            ?: it.tag
-                        else it.tag,
-                    likes = it.likes,
-                    dislikes = it.dislikes,
-                    submitter = it.submitter,
-                    value = it.values.firstOrNull() { value -> value.language == language }?.value ?: ""
-                ) }
-            )
+                descriptions = toInterestPointDescriptionResponse(
+                    tags,
+                    interestPoint.descriptions,
+                    language)
+                )
 
             return ResponseEntity.status(HttpStatus.OK)
                 .body(response)
@@ -109,4 +103,52 @@ class InterestPointController {
     private fun getAllTags(): List<Tag> {
         return tagRepository.findAll()
     }
+
+    @GetMapping("/interest_points/{id}/descriptions")
+    fun getInterestPointDescriptions(
+        @PathVariable id: String,
+        @RequestParam(value = "language", defaultValue = "English") language: String): ResponseEntity<List<InterestPointDescription>> {
+
+        val tags = if (language != "English") {
+            getAllTags()
+        }
+        else {
+            null
+        }
+
+        val interestPoint = interestPointRepository.findByIdOrNull(id)
+        return if (interestPoint != null) {
+            val response = toInterestPointDescriptionResponse(
+                tags,
+                interestPoint.descriptions,
+                language)
+            ResponseEntity.status(HttpStatus.OK)
+                .body(response)
+        }
+        else {
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .build()
+        }
+    }
+
+    private fun toInterestPointDescriptionResponse(
+        tags: List<Tag>?,
+        descriptions: List<travelGuide.collections.InterestPointDescription>,
+        language: String): List<InterestPointDescription> {
+        return descriptions.map {
+            InterestPointDescription(
+                tag = if (tags != null)
+                    tags.firstOrNull { tag -> tag.english == it.tag }?.translations?.firstOrNull { trans -> trans.language == language }?.name
+                        ?: it.tag
+                else it.tag,
+                likes = it.likes,
+                dislikes = it.dislikes,
+                submitter = it.submitter,
+                value = it.values.firstOrNull { value -> value.language == language }?.value
+                    ?: it.values.firstOrNull { value -> value.language == "English" }?.value
+                    ?: ""
+            )
+        }
+    }
+
 }
