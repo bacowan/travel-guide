@@ -1,26 +1,23 @@
 package travelGuide.bootControllers
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy
+import com.fasterxml.jackson.databind.annotation.JsonNaming
+import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
-import org.springframework.data.geo.Distance
-import org.springframework.data.geo.Metrics
-import org.springframework.data.geo.Point
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import travelGuide.collections.Tag
+import travelGuide.collections.TranslationText
 import travelGuide.repositories.InterestPointRepository
+import travelGuide.repositories.LanguageRepository
 import travelGuide.repositories.TagRepository
-import travelGuide.repositories.UserRepository
 import travelGuide.restResponses.InterestPoint
 import travelGuide.restResponses.InterestPointDescription
 import travelGuide.restResponses.ShortInterestPoint
-import travelGuide.restResponses.TranslationText
-import java.util.concurrent.atomic.AtomicLong
 
 @RestController
 class InterestPointController {
@@ -28,6 +25,8 @@ class InterestPointController {
     private lateinit var interestPointRepository: InterestPointRepository
     @Autowired
     private lateinit var tagRepository: TagRepository
+    @Autowired
+    private lateinit var languageRepository: LanguageRepository
 
     @GetMapping("/interest_points")
     fun getInterestPoints(
@@ -143,7 +142,7 @@ class InterestPointController {
                 else it.tag,
                 likes = it.likes,
                 dislikes = it.dislikes,
-                submitter = it.submitter,
+                submitter = it.submitter.toString(),
                 value = it.values.firstOrNull { value -> value.language == language }?.value
                     ?: it.values.firstOrNull { value -> value.language == "English" }?.value
                     ?: ""
@@ -151,4 +150,100 @@ class InterestPointController {
         }
     }
 
+    @PutMapping("/interest_points/{id}/descriptions")
+    fun putDescription(
+        @PathVariable id: String,
+        @RequestBody parameters: InterestPointDescriptionBody): ResponseEntity<String> {
+
+        val interestPoint = interestPointRepository.findByIdOrNull(id)
+        return if (interestPoint != null) {
+            if (tagRepository.existsByEnglish(parameters.tag)) {
+                if (languageRepository.existsByName(parameters.language)) {val description = interestPoint.descriptions.firstOrNull {
+                    it.tag == parameters.tag
+                }
+                    if (description != null) {
+                        val translation = description.values.firstOrNull {
+                            it.language == parameters.language
+                        }
+                        if (translation == null) {
+                            addNewTranslation(interestPoint, description, parameters)
+                        }
+                        else {
+                            editTranslation(interestPoint, translation, parameters)
+                        }
+                    }
+                    else {
+                        addNewDescription(interestPoint, parameters)
+                    }
+                }
+                else {
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("The given language is not valid.")
+                }
+            }
+            else {
+                ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("The given tag is not a valid English tag.")
+            }
+        }
+        else {
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Could not find interest point with the given id")
+        }
+    }
+
+    private fun addNewTranslation(
+        interestPoint: travelGuide.collections.InterestPoint,
+        description: travelGuide.collections.InterestPointDescription,
+        parameters: InterestPointDescriptionBody
+    ): ResponseEntity<String> {
+        description.values.add(TranslationText(
+            parameters.language,
+            parameters.text,
+            parameters.approved
+        ))
+        interestPointRepository.save(interestPoint)
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body("Added the new translation to the interest point description")
+    }
+
+    private fun editTranslation(
+        interestPoint: travelGuide.collections.InterestPoint,
+        translationText: TranslationText,
+        parameters: InterestPointDescriptionBody
+    ): ResponseEntity<String> {
+        translationText.value = parameters.text
+        translationText.approved = parameters.approved
+        interestPointRepository.save(interestPoint)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("Updated the interest point description")
+    }
+
+    private fun addNewDescription(
+        interestPoint: travelGuide.collections.InterestPoint,
+        parameters: InterestPointDescriptionBody
+    ): ResponseEntity<String> {
+        val translationText = TranslationText(
+            parameters.language,
+            parameters.text,
+            parameters.approved
+        )
+        interestPoint.descriptions.add(travelGuide.collections.InterestPointDescription(
+            mutableListOf(translationText),
+            parameters.tag,
+            0,
+            0,
+            null
+        ))
+        interestPointRepository.save(interestPoint)
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("Added the new tagged description")
+    }
 }
+
+@JsonNaming(PropertyNamingStrategy.KebabCaseStrategy::class)
+data class InterestPointDescriptionBody(
+    val language: String,
+    val tag: String,
+    val text: String,
+    val approved: Boolean)

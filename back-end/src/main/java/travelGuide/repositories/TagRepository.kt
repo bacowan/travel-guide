@@ -5,5 +5,6 @@ import travelGuide.collections.Language
 import travelGuide.collections.Tag
 
 interface TagRepository : MongoRepository<Tag, String?> {
-    fun findByEnglish(english: String)
+    fun findByEnglish(english: String) : Tag
+    fun existsByEnglish(english: String) : Boolean
 }

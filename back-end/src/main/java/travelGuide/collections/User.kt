@@ -6,5 +6,5 @@ data class User(
     @Id val id: String? = null,
     var email: String,
     var defaultLanguage: String,
-    var permissions: Array<String> = arrayOf(),
-    var defaultTags: Array<String> = arrayOf())
+    var permissions: List<String> = listOf(),
+    var defaultTags: List<String> = listOf())

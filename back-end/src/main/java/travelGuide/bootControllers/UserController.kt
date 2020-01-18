@@ -110,5 +110,5 @@ data class UserPostBody(val email: String, val defaultLanguage: String)
 data class UserPutBody(
     val email: String?,
     val defaultLanguage: String?,
-    val permissions: Array<String>?,
-    val defaultTags: Array<String>?)
+    val permissions: List<String>?,
+    val defaultTags: List<String>?)
