@@ -6,13 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 import travelGuide.collections.User
 import travelGuide.repositories.LanguageRepository
 import travelGuide.repositories.UserRepository
 
+
 @RestController
 class UserController {
+    @Autowired
+    private lateinit var passwordEncoder: PasswordEncoder
+
     @Autowired
     private lateinit var repository: UserRepository
 
@@ -88,6 +94,7 @@ class UserController {
         else {
             val newUser = User(
                 email = parameters.email,
+                password = passwordEncoder.encode(parameters.password),
                 defaultLanguage = parameters.defaultLanguage
             )
             val savedValue = repository.save(newUser)
@@ -104,7 +111,10 @@ class UserController {
 }
 
 @JsonNaming(PropertyNamingStrategy.KebabCaseStrategy::class)
-data class UserPostBody(val email: String, val defaultLanguage: String)
+data class UserPostBody(
+    val email: String,
+    val password: String,
+    val defaultLanguage: String)
 
 @JsonNaming(PropertyNamingStrategy.KebabCaseStrategy::class)
 data class UserPutBody(
