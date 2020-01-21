@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 import travelGuide.collections.User
 import travelGuide.repositories.LanguageRepository
 import travelGuide.repositories.UserRepository
+import java.security.Principal
 
 
 @RestController
@@ -26,22 +28,30 @@ class UserController {
     private lateinit var languageRepository: LanguageRepository
 
     @GetMapping("/users/{id}")
-    fun getUser(@PathVariable id: String): ResponseEntity<travelGuide.restResponses.User> {
+    fun getUser(
+        @PathVariable id: String,
+        principal: Principal): ResponseEntity<travelGuide.restResponses.User> {
         val user = repository.findByIdOrNull(id);
         return if (user != null) {
-            if (languageRepository.existsByName(user.defaultLanguage)) {
-                val responseUser = travelGuide.restResponses.User(
-                    id = user.id ?: "",
-                    email = user.email,
-                    defaultLanguage = user.defaultLanguage,
-                    permissions = user.permissions.toList(),
-                    defaultTags = user.defaultTags.toList()
-                )
-                ResponseEntity.status(HttpStatus.OK)
-                    .body(responseUser)
+            if (user.id == principal.name) {
+                if (languageRepository.existsByName(user.defaultLanguage)) {
+                    val responseUser = travelGuide.restResponses.User(
+                        id = user.id ?: "",
+                        email = user.email,
+                        defaultLanguage = user.defaultLanguage,
+                        permissions = user.permissions.toList(),
+                        defaultTags = user.defaultTags.toList()
+                    )
+                    ResponseEntity.status(HttpStatus.OK)
+                        .body(responseUser)
+                }
+                else {
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .build()
+                }
             }
             else {
-                ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .build()
             }
         }
@@ -55,6 +65,7 @@ class UserController {
     fun updateUser(
         @PathVariable id: String,
         @RequestBody parameters: UserPutBody): ResponseEntity<String> {
+
         val user = repository.findByIdOrNull(id);
         return if (user != null) {
             if (parameters.email != null) {

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
+import travelGuide.collections.User
 import travelGuide.repositories.UserRepository
 import java.util.*
 
@@ -36,7 +37,8 @@ class AuthenticateController {
         @RequestParam("user") username: String,
         @RequestParam("password") password: String): ResponseEntity<String> {
 
-        if (!checkPassword(username, password)) {
+        val user = repository.findByEmail(username).firstOrNull()
+        if (user == null || !checkPassword(user, password)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body("Incorrect credentials")
         }
@@ -47,7 +49,7 @@ class AuthenticateController {
         val token: String = Jwts
             .builder()
             .setId(jwtId)
-            .setSubject(username)
+            .setSubject(user.id)
             .claim(
                 "authorities",
                 grantedAuthorities.map { it.authority }
@@ -63,13 +65,7 @@ class AuthenticateController {
             .body("Bearer $token")
     }
 
-    private fun checkPassword(username: String, password: String): Boolean {
-        val user = repository.findByEmail(username).firstOrNull()
-        return if (user == null) {
-            false
-        }
-        else {
-            passwordEncoder.matches(password, user.password)
-        }
+    private fun checkPassword(user: User, password: String): Boolean {
+        return passwordEncoder.matches(password, user.password)
     }
 }
