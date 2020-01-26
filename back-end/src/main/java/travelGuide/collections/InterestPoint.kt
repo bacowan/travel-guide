@@ -24,5 +24,4 @@ data class InterestPoint(
     var location: List<Double>,
     var name: List<TranslationText>,
     var subName: List<TranslationText>,
-    var descriptions: MutableList<InterestPointDescription>,
-    var approved: Boolean)
+    var descriptions: MutableList<InterestPointDescription>)

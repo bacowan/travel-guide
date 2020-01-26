@@ -44,7 +44,7 @@ class AuthenticateController {
         }
 
         val grantedAuthorities = AuthorityUtils
-            .commaSeparatedStringToAuthorityList("ROLE_USER")
+            .commaSeparatedStringToAuthorityList(user.permissions.joinToString(","))
 
         val token: String = Jwts
             .builder()
