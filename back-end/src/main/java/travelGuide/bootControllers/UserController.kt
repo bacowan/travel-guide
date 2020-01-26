@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -17,41 +18,34 @@ import java.security.Principal
 
 
 @RestController
-class UserController {
+open class UserController {
     @Autowired
-    private lateinit var passwordEncoder: PasswordEncoder
+    lateinit var passwordEncoder: PasswordEncoder
 
     @Autowired
-    private lateinit var repository: UserRepository
+    lateinit var repository: UserRepository
 
     @Autowired
-    private lateinit var languageRepository: LanguageRepository
+    lateinit var languageRepository: LanguageRepository
 
     @GetMapping("/users/{id}")
     fun getUser(
-        @PathVariable id: String,
-        principal: Principal): ResponseEntity<travelGuide.restResponses.User> {
+        @PathVariable id: String): ResponseEntity<travelGuide.restResponses.User> {
         val user = repository.findByIdOrNull(id);
         return if (user != null) {
-            if (user.id == principal.name) {
-                if (languageRepository.existsByName(user.defaultLanguage)) {
-                    val responseUser = travelGuide.restResponses.User(
-                        id = user.id ?: "",
-                        email = user.email,
-                        defaultLanguage = user.defaultLanguage,
-                        permissions = user.permissions.toList(),
-                        defaultTags = user.defaultTags.toList()
-                    )
-                    ResponseEntity.status(HttpStatus.OK)
-                        .body(responseUser)
-                }
-                else {
-                    ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .build()
-                }
+            if (languageRepository.existsByName(user.defaultLanguage)) {
+                val responseUser = travelGuide.restResponses.User(
+                    id = user.id ?: "",
+                    email = user.email,
+                    defaultLanguage = user.defaultLanguage,
+                    permissions = user.permissions.toList(),
+                    defaultTags = user.defaultTags.toList()
+                )
+                ResponseEntity.status(HttpStatus.OK)
+                    .body(responseUser)
             }
             else {
-                ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .build()
             }
         }
