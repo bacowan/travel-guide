@@ -5,6 +5,5 @@ data class ShortInterestPoint(
     val name: String,
     val sub_name: String,
     val lat: Double,
-    val lon: Double,
-    val approved: Boolean
+    val lon: Double
 )

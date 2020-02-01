@@ -6,6 +6,5 @@ data class InterestPoint(
     val sub_name: String,
     val lat: Double,
     val lon: Double,
-    val approved: Boolean,
     val descriptions: List<InterestPointDescription>
 )

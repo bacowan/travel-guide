@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.geo.Distance
-import org.springframework.data.geo.Metric
 import org.springframework.data.geo.Metrics
 import org.springframework.data.geo.Point
 import org.springframework.data.repository.findByIdOrNull
@@ -15,12 +14,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
+import travelGuide.collections.InterestPointRequest
 import travelGuide.collections.Tag
 import travelGuide.collections.TranslationText
-import travelGuide.repositories.InterestPointRepository
-import travelGuide.repositories.LanguageRepository
-import travelGuide.repositories.TagRepository
-import travelGuide.repositories.UserRepository
+import travelGuide.repositories.*
 import travelGuide.restResponses.InterestPoint
 import travelGuide.restResponses.InterestPointDescription
 import travelGuide.restResponses.ShortInterestPoint
@@ -29,6 +26,8 @@ import travelGuide.restResponses.ShortInterestPoint
 class InterestPointController {
     @Autowired
     private lateinit var interestPointRepository: InterestPointRepository
+    @Autowired
+    private lateinit var interestPointRequestsRepository: InterestPointRequestsRepository
     @Autowired
     private lateinit var tagRepository: TagRepository
     @Autowired
@@ -59,35 +58,32 @@ class InterestPointController {
                         name = (it.name.firstOrNull { name -> name.language == language } ?: it.name.firstOrNull()) ?.value ?: "",
                         sub_name = (it.subName.firstOrNull { name -> name.language == language } ?: it.subName.firstOrNull()) ?.value ?: "",
                         lat = it.location.firstOrNull() ?: 0.0,
-                        lon  = it.location.firstOrNull() ?: 0.0,
-                        approved = it.approved)
+                        lon  = it.location.firstOrNull() ?: 0.0)
                 else null }
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(interestPoints)
     }
 
-    @PostMapping("/interest_points")
+    @PostMapping("/interest_point_requests")
     fun addInterestPoint(
         @RequestBody parameters: NewInterestPointBody,
         authentication: Authentication?): ResponseEntity<String> {
 
-        val tooClose = interestPointRepository.existsByLocationNear(
-            Point(parameters.lat, parameters.lon),
-            Distance(0.005, Metrics.KILOMETERS)) // TODO: Don't hard code "5m"
+        val tooClose = isTooClose(parameters.lat, parameters.lon)
         return if (!tooClose) {
             val user = if (authentication != null) userRepository.findByIdOrNull(authentication.name) else null
             if (user != null) {
-                val interestPoint = travelGuide.collections.InterestPoint(
+                val interestPoint = travelGuide.collections.InterestPointRequest(
                     location = listOf(parameters.lat, parameters.lon),
-                    name = listOf(TranslationText(user.defaultLanguage, parameters.name, false)),
+                    name = listOf(TranslationText(user.defaultLanguage, parameters.name)),
                     subName = if (parameters.subName != null)
-                        listOf(TranslationText(user.defaultLanguage, parameters.subName, false))
+                        listOf(TranslationText(user.defaultLanguage, parameters.subName))
                     else listOf(),
                     descriptions = mutableListOf(),
-                    approved = false
+                    submitter = ObjectId(user.id)
                 )
-                val savedInterestPoint = interestPointRepository.save(interestPoint)
+                val savedInterestPoint = interestPointRequestsRepository.save(interestPoint)
                 ResponseEntity.status(HttpStatus.CREATED)
                     .body(savedInterestPoint.id)
             }
@@ -98,6 +94,13 @@ class InterestPointController {
             ResponseEntity.status(HttpStatus.CONFLICT)
                 .body("There is already an interest point within 5 meters of this one")
         }
+    }
+
+    private fun isTooClose(lat: Double, lon: Double): Boolean {
+        return interestPointRepository.existsByLocationNear(
+            Point(lat, lon),
+            Distance(0.005, Metrics.KILOMETERS) // TODO: Don't hard code "5m"
+        )
     }
 
     @GetMapping("/interest_points/{id}")
@@ -123,7 +126,6 @@ class InterestPointController {
                     ?: "",
                 lat = interestPoint.location.firstOrNull() ?: 0.0,
                 lon = interestPoint.location.elementAtOrNull(1) ?: 0.0,
-                approved = interestPoint.approved,
                 descriptions = toInterestPointDescriptionResponse(
                     tags,
                     interestPoint.descriptions,
@@ -144,27 +146,38 @@ class InterestPointController {
         return tagRepository.findAll()
     }
 
-    @PutMapping("interest_points/{id}")
-    fun updateInterestPoint(
+    @PutMapping("interest_point_requests/{id}")
+    fun updateInterestPointRequest(
         @PathVariable id: String,
         @RequestBody parameters: UpdateInterestPointBody,
         authentication: Authentication?) : ResponseEntity<String> {
 
-        val interestPoint = interestPointRepository.findByIdOrNull(id)
+        val interestPoint = interestPointRequestsRepository.findByIdOrNull(id)
         return if (interestPoint != null) {
             val user = if (authentication != null) userRepository.findByIdOrNull(authentication.name) else null
             if (user != null) {
-                if (interestPoint.approved && user.permissions.contains("Approver")) {
-                    if (parameters.lat)
-                }
-                else if (!interestPoint.approved
-                    && (user.permissions.contains("Approver") || user.id == interestPoint.submitter.toHexString())) {
-
+                if (interestPoint.submitter.toHexString() == user.id || user.permissions.contains("Approver")) {
+                    if (!isTooClose(parameters.lat, parameters.lon)) {
+                        if (!parameters.approved) {
+                            updateInterestPointRequest(interestPoint, parameters)
+                        }
+                        else if (user.permissions.contains("Approver")) {
+                            approveInterestPoint(interestPoint, parameters)
+                        }
+                        else {
+                            ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body("Only 'Approver's can approve interest points.")
+                        }
+                    }
+                    else {
+                        // TODO: race condition: the check is done on two, then the approval is done on both
+                        ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body("There is already an interest point within 5 meters of this one")
+                    }
                 }
                 else {
                     ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Only users with the 'Approver' permission can update approved interest points," +
-                                "and only 'Approver's and the creating user can update unapproved interest points")
+                        .body("Only 'Approver's and the creating user can update unapproved interest points.")
                 }
             }
             else {
@@ -176,6 +189,21 @@ class InterestPointController {
             ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body("Interest point not found")
         }
+    }
+
+    private fun updateInterestPointRequest(
+        interestPointRequest: InterestPointRequest,
+        parameters: UpdateInterestPointBody): ResponseEntity<String> {
+
+        interestPointRequest.location = listOf(parameters.lat, parameters.lon)
+        interestPointRequest.name = parameters.name
+        interestPointRequest.subName = parameters.subName
+    }
+
+    private fun approveInterestPoint(
+        interestPointRequest: InterestPointRequest,
+        parameters: UpdateInterestPointBody): ResponseEntity<String> {
+
     }
 
     @GetMapping("/interest_points/{id}/descriptions")
