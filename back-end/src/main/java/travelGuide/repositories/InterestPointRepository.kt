@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository
 import travelGuide.collections.InterestPoint
 
 interface InterestPointRepository : MongoRepository<InterestPoint?, String?>, InterestPointRepositoryCustom {
-    fun existsByLocationNear(location: Point, distance: Distance): Boolean
+    fun existsByLocationValueNear(location: Point, distance: Distance): Boolean
 }
