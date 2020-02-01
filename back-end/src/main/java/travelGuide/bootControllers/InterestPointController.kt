@@ -6,15 +6,20 @@ import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.geo.Distance
+import org.springframework.data.geo.Metrics
+import org.springframework.data.geo.Point
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import travelGuide.collections.Tag
 import travelGuide.collections.TranslationText
 import travelGuide.repositories.InterestPointRepository
 import travelGuide.repositories.LanguageRepository
 import travelGuide.repositories.TagRepository
+import travelGuide.repositories.UserRepository
 import travelGuide.restResponses.InterestPoint
 import travelGuide.restResponses.InterestPointDescription
 import travelGuide.restResponses.ShortInterestPoint
@@ -27,6 +32,8 @@ class InterestPointController {
     private lateinit var tagRepository: TagRepository
     @Autowired
     private lateinit var languageRepository: LanguageRepository
+    @Autowired
+    private lateinit var userRepository: UserRepository
 
     @GetMapping("/interest_points")
     fun getInterestPoints(
@@ -57,6 +64,45 @@ class InterestPointController {
 
         return ResponseEntity.status(HttpStatus.OK)
             .body(interestPoints)
+    }
+
+    @PostMapping("/interest_points")
+    fun addInterestPoint(
+        @RequestBody parameters: NewInterestPointBody,
+        authentication: Authentication?): ResponseEntity<String> {
+
+        val tooClose = isTooClose(parameters.lat, parameters.lon)
+        return if (!tooClose) {
+            val user = if (authentication != null) userRepository.findByIdOrNull(authentication.name) else null
+            if (user != null) {
+                val interestPoint = travelGuide.collections.InterestPoint(
+                    location = listOf(parameters.lat, parameters.lon),
+                    name = listOf(TranslationText(user.defaultLanguage, parameters.name)),
+                    subName = if (parameters.subName != null)
+                        listOf(TranslationText(user.defaultLanguage, parameters.subName))
+                    else listOf(),
+                    descriptions = mutableListOf(),
+                    submitter = ObjectId(user.id),
+                    approved = false
+                )
+                val savedInterestPoint = interestPointRepository.save(interestPoint)
+                ResponseEntity.status(HttpStatus.CREATED)
+                    .body(savedInterestPoint.id)
+            }
+            ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Could not find the given logged in user")
+        }
+        else {
+            ResponseEntity.status(HttpStatus.CONFLICT)
+                .body("There is already an interest point within 5 meters of this one")
+        }
+    }
+
+    private fun isTooClose(lat: Double, lon: Double): Boolean {
+        return interestPointRepository.existsByLocationNear(
+            Point(lat, lon),
+            Distance(0.005, Metrics.KILOMETERS) // TODO: Don't hard code "5m"
+        )
     }
 
     @GetMapping("/interest_points/{id}")
@@ -240,6 +286,13 @@ class InterestPointController {
             .body("Added the new tagged description")
     }
 }
+
+@JsonNaming(PropertyNamingStrategy.KebabCaseStrategy::class)
+data class NewInterestPointBody(
+    val lat: Double,
+    val lon: Double,
+    val name: String,
+    val subName: String?)
 
 @JsonNaming(PropertyNamingStrategy.KebabCaseStrategy::class)
 data class InterestPointDescriptionBody(

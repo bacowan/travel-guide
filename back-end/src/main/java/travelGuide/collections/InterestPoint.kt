@@ -2,21 +2,19 @@ package travelGuide.collections
 
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.DBRef
 
 data class TranslationText(
     var language: String,
-    var value: String,
-    var approved: Boolean
+    var value: String
 )
 
-// if there is no description, this will just act as another tag for the interest point
+// if values is empty, this will just act as another tag for the interest point
 data class InterestPointDescription(
     var values: MutableList<TranslationText>,
     var tag: String, // this only includes the English tag; to get other tags, you have to join with the tags collection
     var likes: Int,
     var dislikes: Int,
-    var submitter: ObjectId? //TODO: this is just nullable for dev purposes
+    var submitter: ObjectId
 )
 
 data class InterestPoint(
@@ -25,4 +23,5 @@ data class InterestPoint(
     var name: List<TranslationText>,
     var subName: List<TranslationText>,
     var descriptions: MutableList<InterestPointDescription>,
+    var submitter: ObjectId,
     var approved: Boolean)
