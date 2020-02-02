@@ -4,14 +4,14 @@ import {
   NavLink,
   HashRouter
 } from "react-router-dom";
-import Login from "./Login";
+import LandingPage from "./LandingPage";
  
 class Main extends Component {
   render() {
     return (
       <HashRouter>
         <div className="content">
-          <Route exact path="/" component={Login}/>
+          <Route exact path="/" component={LandingPage}/>
         </div>
       </HashRouter>
     );
