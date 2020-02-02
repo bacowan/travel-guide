@@ -327,6 +327,8 @@ class InterestPointController {
             }
         }
 
+        interestPoint.approved = true
+
         interestPointRepository.save(interestPoint)
 
         return ResponseEntity.status(HttpStatus.OK)
