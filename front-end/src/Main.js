@@ -4,14 +4,14 @@ import {
   NavLink,
   HashRouter
 } from "react-router-dom";
-import NearbyList from "./NearbyList";
+import NearbyListPage from "./NearbyListPage";
  
 class Main extends Component {
   render() {
     return (
       <HashRouter>
         <div className="content">
-          <Route exact path="/" component={NearbyList}/>
+          <Route exact path="/" component={NearbyListPage}/>
         </div>
       </HashRouter>
     );

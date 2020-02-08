@@ -54,7 +54,7 @@ class InterestPointController {
                         name = (it.name.firstOrNull { name -> name.language == language } ?: it.name.firstOrNull()) ?.value?.value ?: "",
                         sub_name = (it.subName.firstOrNull { name -> name.language == language } ?: it.subName.firstOrNull()) ?.value?.value ?: "",
                         lat = it.location.value?.firstOrNull() ?: 0.0,
-                        lon  = it.location.value?.firstOrNull() ?: 0.0,
+                        lon  = it.location.value?.elementAtOrNull(1) ?: 0.0,
                         approved = it.approved)
                 else null }
 
