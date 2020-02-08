@@ -6,9 +6,12 @@ import './responsive.css'
 class Navbar extends Component {
     render() {
         return (
-            <ul>
-                <li></li>
+            <ul className="navbar">
+              <li><a>Login</a></li>
+              <li><a>Sign Up</a></li>
             </ul>
         )
     }
 }
+
+export default Navbar;

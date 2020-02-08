@@ -1,17 +1,15 @@
 import React, { Component } from "react";
 import { NavLink } from "react-router-dom";
 import { Compass, Search } from 'react-feather';
-import './index.css'
-import './responsive.css'
+import './index.css';
+import './responsive.css';
+import Navbar from "./Navbar";
  
 class LandingPage extends Component {
   render() {
     return (
       <>
-      <ul className="navbar">
-        <li><a>Login</a></li>
-        <li><a>Sign Up</a></li>
-      </ul>
+      <Navbar/>
       <div className="row center-content">
         <button className="col-s-3 button-list-item">
           <Compass size={128}/>
