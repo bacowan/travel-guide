@@ -37,7 +37,6 @@ class NearbyListPage extends Component {
   render() {
     return (
       <>
-      <Navbar/>
       <h1>Nearby Interest Points</h1>
       {this.state.nearbyItems}
       </>

@@ -27,7 +27,11 @@ body {
     background-color: #111;
 }
 
-.navbar > li {
+.navbar > li.navbar-left {
+    float: left;
+}
+
+.navbar > li.navbar-right {
     float: right;
 }
 

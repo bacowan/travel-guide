@@ -7,8 +7,10 @@ class Navbar extends Component {
     render() {
         return (
             <ul className="navbar">
-              <li><a>Login</a></li>
-              <li><a>Sign Up</a></li>
+                <li className="navbar-left"><NavLink to="/NearbyListPage">Nearby</NavLink></li>
+                <li className="navbar-left"><NavLink to="/MapPage">Map</NavLink></li>
+                <li className="navbar-right"><a>Login</a></li>
+                <li className="navbar-right"><a>Sign Up</a></li>
             </ul>
         )
     }

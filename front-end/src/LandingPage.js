@@ -3,13 +3,10 @@ import { NavLink } from "react-router-dom";
 import { Compass, Search } from 'react-feather';
 import './index.css';
 import './responsive.css';
-import Navbar from "./Navbar";
  
 class LandingPage extends Component {
   render() {
     return (
-      <>
-      <Navbar/>
       <div className="row center-content">
         <button className="col-s-3 button-list-item">
           <Compass size={128}/>
@@ -20,7 +17,6 @@ class LandingPage extends Component {
           <p>Nearby</p>
         </button>
       </div>
-      </>
     );
   }
 }
