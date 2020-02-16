@@ -10,7 +10,7 @@ class Navbar extends Component {
                 <li className="navbar-left"><NavLink to="/NearbyListPage">Nearby</NavLink></li>
                 <li className="navbar-left"><NavLink to="/MapPage">Map</NavLink></li>
                 <li className="navbar-right"><a>Login</a></li>
-                <li className="navbar-right"><a>Sign Up</a></li>
+                <li className="navbar-right"><NavLink to="/SignUp">Sign Up</NavLink></li>
             </ul>
         )
     }

@@ -12,6 +12,7 @@
 /* For mobile phones: */
 [class*="col-"] {
     width: 100%;
+    float: left;
 }
 
 .feather-medium {

@@ -7,6 +7,7 @@ import {
 import Navbar from "./Navbar";
 import NearbyListPage from "./NearbyListPage";
 import MapPage from "./MapPage";
+import SignUp from "./SignUp";
  
 class Main extends Component {
   render() {
@@ -18,6 +19,7 @@ class Main extends Component {
             <Route exact path="/" component={NearbyListPage}/>
             <Route path="/NearbyListPage" component={NearbyListPage}/>
             <Route path="/MapPage" component={MapPage}/>
+            <Route path="/SignUp" component={SignUp}/>
           </div>
         </div>
       </HashRouter>
