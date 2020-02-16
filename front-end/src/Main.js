@@ -14,9 +14,11 @@ class Main extends Component {
       <HashRouter>
         <div className="router-content">
           <Navbar/>
-          <Route exact path="/" component={NearbyListPage}/>
-          <Route path="/NearbyListPage" component={NearbyListPage}/>
-          <Route path="/MapPage" component={MapPage}/>
+          <div>
+            <Route exact path="/" component={NearbyListPage}/>
+            <Route path="/NearbyListPage" component={NearbyListPage}/>
+            <Route path="/MapPage" component={MapPage}/>
+          </div>
         </div>
       </HashRouter>
     );
