@@ -12,7 +12,7 @@ class Main extends Component {
   render() {
     return (
       <HashRouter>
-        <div className="content">
+        <div className="router-content">
           <Navbar/>
           <Route exact path="/" component={NearbyListPage}/>
           <Route path="/NearbyListPage" component={NearbyListPage}/>

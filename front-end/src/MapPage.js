@@ -4,6 +4,7 @@ import OlView from "ol/View";
 import OlLayerTile from "ol/layer/Tile";
 import OlSourceOSM from "ol/source/OSM";
 import { fromLonLat } from 'ol/proj';
+import './map.css'
 
 class MapPage extends Component {
   constructor(props) {
