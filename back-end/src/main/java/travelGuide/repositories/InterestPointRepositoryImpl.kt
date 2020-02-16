@@ -2,8 +2,7 @@ package travelGuide.repositories
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
-import org.springframework.data.geo.Circle
-import org.springframework.data.geo.Point
+import org.springframework.data.geo.*
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -30,7 +29,9 @@ class InterestPointRepositoryImpl : InterestPointRepositoryCustom {
             query.addCriteria(Criteria.where("descriptions").elemMatch(
                 Criteria.where("tag").`in`(tags)))
         }
-        query.addCriteria(Criteria.where("location").withinSphere(Circle(Point(lat, lon), distance)))
+        query.addCriteria(Criteria
+            .where("location.value")
+            .withinSphere(Circle(Point(lat, lon), Distance(distance, Metrics.KILOMETERS))))
 
         return mongoTemplate.find(query, InterestPoint::class.java)
     }
