@@ -32,7 +32,9 @@ open class Application {
 
         @Throws(Exception::class)
         override fun configure(http: HttpSecurity) {
-            http.cors().and()
+            http
+                .csrf().disable() // TODO: This is only for development. Should remove for production.
+                .cors().and()
                 .addFilterAfter(JWTAuthorizationFilter(secret), UsernamePasswordAuthenticationFilter::class.java)
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/authenticate").permitAll()
@@ -46,19 +48,12 @@ open class Application {
         open fun corsConfigurationSource(): CorsConfigurationSource? {
             val configuration = CorsConfiguration()
             configuration.allowedOrigins = listOf("http://localhost:3000")
-            configuration.allowedMethods = listOf("GET", "POST")
-            val source =
-                UrlBasedCorsConfigurationSource()
+            configuration.allowedMethods = listOf("*")
+            configuration.allowedHeaders = listOf("Content-Type")
+            val source = UrlBasedCorsConfigurationSource()
             source.registerCorsConfiguration("/**", configuration)
             return source
         }
-
-//        @Bean
-//        open fun corsConfigurationSource() : CorsConfigurationSource {
-//            val source = UrlBasedCorsConfigurationSource()
-//            source.registerCorsConfiguration("/**", CorsConfiguration().applyPermitDefaultValues())
-//            return source
-//        }
     }
 }
 
