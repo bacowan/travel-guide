@@ -10,7 +10,9 @@ import OlVectorLayer from "ol/layer/Vector";
 import { Style, Fill, Stroke } from 'ol/style';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { RegularShape } from 'ol/style';
-import './map.css'
+import { defaults as defaultControls, Control } from 'ol/control';
+import './map.css';
+import feather from 'feather-icons';
 
 class MapPage extends Component {
   constructor(props) {
@@ -51,6 +53,12 @@ class MapPage extends Component {
       })
     });
 
+    let button = document.createElement('button');
+    button.innerHTML = feather.icons['edit-3'].toSvg();
+    let control = document.createElement('div');
+    control.appendChild(button);
+    control.className = 'ol-unselectable ol-control map-edit-button';
+
     this.olmap = new OlMap({
       target: this.mapRef.current,
       layers: [
@@ -59,6 +67,11 @@ class MapPage extends Component {
         }),
         markerVectorLayer
       ],
+      controls: defaultControls().extend([
+        new Control({
+          element: control
+        })
+      ]),
       view: new OlView({
         center: currentLocation,
         zoom: 15

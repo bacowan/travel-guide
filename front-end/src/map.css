@@ -2,3 +2,12 @@
     height: 100%;
     width: 100%;
 }
+
+.map-edit-button {
+    bottom: 0.5em;
+    left: 0.5em;
+}
+
+.map-edit-button > button > svg {
+    padding: 0.2em;
+}
