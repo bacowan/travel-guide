@@ -86,12 +86,15 @@ class MapPage extends Component {
         }),
         markerVectorLayer
       ],
-      controls: defaultControls().extend([this.editControl]),
       view: new OlView({
         center: currentLocation,
         zoom: 15
       })
     });
+
+    if (this.props.bearer !== "") {
+      this.olmap.addControl(this.editControl);
+    }
 
     this.olmap.on('moveend', this.onMoveEnd.bind(this));
   }
@@ -165,7 +168,13 @@ class MapPage extends Component {
 
   render() {
     if (this.state.newPointLat !== null && this.state.newPointLon !== null) {
-      return <Redirect to='/InterestPointEdit'/>;
+      return <Redirect to={{
+        pathname: '/InterestPointEdit',
+        state: {
+          lat: this.state.newPointLat,
+          lon: this.state.newPointLon
+        }
+      }}/>;
     }
     else {
       return (

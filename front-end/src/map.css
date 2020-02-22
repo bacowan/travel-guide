@@ -22,3 +22,9 @@
     left: 50%;
     top: 50%;
 }
+
+.map-form-container {
+    position: relative;
+    height: 10em;
+    width: 20em;
+}
