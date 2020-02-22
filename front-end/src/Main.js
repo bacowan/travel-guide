@@ -7,6 +7,7 @@ import Navbar from "./Navbar";
 import NearbyListPage from "./NearbyListPage";
 import MapPage from "./MapPage";
 import SignUp from "./SignUp";
+import Login from "./Login";
  
 class Main extends Component {
   constructor(props) {
@@ -40,6 +41,7 @@ class Main extends Component {
             <Route path="/NearbyListPage" component={NearbyListPage}/>
             <Route path="/MapPage" component={MapPage}/>
             <Route path="/SignUp" render={(props) => <SignUp {...props} bearerChanged={this.bearerChanged}/>}/>
+            <Route path="/Login" render={(props) => <Login {...props} bearerChanged={this.bearerChanged}/>}/>
           </div>
         </div>
       </BrowserRouter>

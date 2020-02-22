@@ -23,7 +23,7 @@ class Navbar extends Component {
                     <li className="navbar-right"><NavLink to="/NearbyListPage" onClick={this.onSignOutClick}>Sign Out</NavLink></li>)
                     ||
                     (<>
-                    <li className="navbar-right"><a>Login</a></li>
+                    <li className="navbar-right"><NavLink to="/Login">Login</NavLink></li>
                     <li className="navbar-right"><NavLink to="/SignUp">Sign Up</NavLink></li>
                     </>)}
                 
