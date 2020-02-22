@@ -13,11 +13,36 @@ import { RegularShape } from 'ol/style';
 import { defaults as defaultControls, Control } from 'ol/control';
 import './map.css';
 import feather from 'feather-icons';
+import { MapPin } from 'react-feather';
+import { Redirect } from 'react-router';
 
 class MapPage extends Component {
   constructor(props) {
     super(props);
+    this.editButtonClick = this.editButtonClick.bind(this);
+    this.cancelEditButtonClick = this.cancelEditButtonClick.bind(this);
     this.mapRef = React.createRef();
+    this.state = {
+      isEditing: false,
+      newPointLat: null,
+      newPointLon: null
+    };
+
+    this.editButton = document.createElement('button');
+    this.editButton.onclick = this.editButtonClick;
+    this.editButton.innerHTML = feather.icons['edit-3'].toSvg();
+    let editDiv = document.createElement('div');
+    editDiv.appendChild(this.editButton);
+    editDiv.className = 'ol-unselectable ol-control map-button-edit';
+    this.editControl = new Control({ element: editDiv });
+
+    this.cancelEditButton = document.createElement('button');
+    this.cancelEditButton.onclick = this.cancelEditButtonClick;
+    this.cancelEditButton.innerHTML = feather.icons['x'].toSvg();
+    let cancelEditDiv = document.createElement('div');
+    cancelEditDiv.appendChild(this.cancelEditButton);
+    cancelEditDiv.className = 'ol-unselectable ol-control map-button-cancel-edit';
+    this.cancelEditControl = new Control({ element: cancelEditDiv });
   }
 
   componentDidMount() {
@@ -53,12 +78,6 @@ class MapPage extends Component {
       })
     });
 
-    let button = document.createElement('button');
-    button.innerHTML = feather.icons['edit-3'].toSvg();
-    let control = document.createElement('div');
-    control.appendChild(button);
-    control.className = 'ol-unselectable ol-control map-edit-button';
-
     this.olmap = new OlMap({
       target: this.mapRef.current,
       layers: [
@@ -67,11 +86,7 @@ class MapPage extends Component {
         }),
         markerVectorLayer
       ],
-      controls: defaultControls().extend([
-        new Control({
-          element: control
-        })
-      ]),
+      controls: defaultControls().extend([this.editControl]),
       view: new OlView({
         center: currentLocation,
         zoom: 15
@@ -79,6 +94,31 @@ class MapPage extends Component {
     });
 
     this.olmap.on('moveend', this.onMoveEnd.bind(this));
+  }
+
+  editButtonClick() {
+    if (!this.state.isEditing) {
+      this.olmap.addControl(this.cancelEditControl);
+      this.editButton.innerHTML = feather.icons['check'].toSvg();
+      this.setState({
+        isEditing: true
+      });
+    }
+    else {
+      let coords = this.olmap.getView().getCenter();
+      this.setState({
+        newPointLat: coords[1],
+        newPointLon: coords[0]
+      });
+    }
+  }
+
+  cancelEditButtonClick() {
+    this.editButton.innerHTML = feather.icons['edit-3'].toSvg();
+    this.olmap.removeControl(this.cancelEditControl);
+    this.setState({
+      isEditing: false
+    });
   }
 
   async onMoveEnd(event) {
@@ -124,11 +164,17 @@ class MapPage extends Component {
   }
 
   render() {
-    return (
-      <>
-      <div ref={this.mapRef} className="map"/>
-      </>
-    );
+    if (this.state.newPointLat !== null && this.state.newPointLon !== null) {
+      return <Redirect to='/InterestPointEdit'/>;
+    }
+    else {
+      return (
+        <>
+        <div ref={this.mapRef} className="map"/>
+        {this.state.isEditing && <MapPin size={24} color="red"/>}
+        </>
+      );
+    }
   }
 }
 

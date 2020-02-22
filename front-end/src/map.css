@@ -3,11 +3,22 @@
     width: 100%;
 }
 
-.map-edit-button {
+.map-button-edit {
     bottom: 0.5em;
     left: 0.5em;
 }
 
-.map-edit-button > button > svg {
+.map-button-cancel-edit {
+    bottom: 0.5em;
+    left: 2.7em;
+}
+
+[class*="map-button"] > button > svg {
     padding: 0.2em;
+}
+
+.map + * {
+    position: absolute;
+    left: 50%;
+    top: 50%;
 }
