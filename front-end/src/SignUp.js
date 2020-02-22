@@ -43,7 +43,14 @@ class SignUp extends Component {
             const url=`http://localhost:8080/authenticate?user=${this.state.email}&password=${this.state.password}`;
             const self = this;
             request.onreadystatechange = () => {
-                console.log(request.response)
+                if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+                    let expires = new Date();
+                    expires.setTime(expires.getTime() + (24 * 60 * 60 * 1000));
+                    // TODO: set cookie expiry that lines up with the bearer expiry date
+                    document.cookie = `bearer=${request.response};expires=${expires};path=/`;
+                    self.props.bearerChanged();
+                    self.props.history.goBack();
+                }
             }
             request.open("POST", url);
             request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");

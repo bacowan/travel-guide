@@ -92,7 +92,9 @@ open class UserController {
 
     @PostMapping("/users")
     fun newUser(@RequestBody parameters: UserPostBody): ResponseEntity<String> {
-        // TODO: Send validation email before enabling all features
+        // TODO: 1. Send validation email before enabling all features.
+        // TODO: 2. there's a race condition here. If two of the same conditions are sent one after another,
+        // TODO: two of the same user can be created.
         if (repository.existsByEmail(parameters.email)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body("User with the given email address already exists.")
