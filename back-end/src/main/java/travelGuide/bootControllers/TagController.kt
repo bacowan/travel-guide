@@ -15,6 +15,6 @@ class TagController {
 
     @GetMapping("/tags")
     fun getTags(): List<Tag> {
-        return tagRepository.findAll().map { tag -> Tag(tag.translations.map { Translation(it.language, it.name) }) }
+        return tagRepository.findAll().map { tag -> Tag(tag.english, tag.translations.map { Translation(it.language, it.name) }) }
     }
 }

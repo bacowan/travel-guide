@@ -39,6 +39,7 @@ open class Application {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/authenticate").permitAll()
                 .antMatchers(HttpMethod.GET, "/interest_points").permitAll()
+                .antMatchers(HttpMethod.GET, "/tags").permitAll()
                 .antMatchers(HttpMethod.POST, "/users").permitAll()
                 .antMatchers(HttpMethod.GET, "/users/{id}").access("@securityService.matchesUser(authentication, #id)")
                 .anyRequest().authenticated()

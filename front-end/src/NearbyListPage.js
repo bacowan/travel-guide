@@ -18,7 +18,6 @@ class NearbyListPage extends Component {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async function(position) {
         let fetchurl = `http://localhost:8080/interest_points?lat=${position.coords.latitude}&lon=${position.coords.longitude}&distance=10`;
-        console.log(fetchurl)
         let response = await fetch(fetchurl, {mode: 'cors'});
         let asJson = await response.json();
         self.setState({

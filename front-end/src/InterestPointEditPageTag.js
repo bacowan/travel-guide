@@ -6,32 +6,44 @@ class InterestPointEditPageTag extends Component {
     constructor(props) {
         super(props);
         this.setModal = this.setModal.bind(this);
+        this.confirm = this.confirm.bind(this);
+        this.state = {
+            name: "",
+            description: ""
+        };
     }
 
     setModal() {
         this.props.setModal(
-            <EditTagModal/>
+            <EditTagModal cancel={this.props.modalClose} confirm={this.confirm} availableTagNames={this.props.availableTagNames}/>
         )
+    }
+
+    confirm(name, description) {
+        this.setState({
+            name: name,
+            description: description
+        })
     }
 
     render() {
         return (
             <div className="interest-point-tag-box">
                 <div className="row">
-                    <p className="col-s-4">Name:</p>
-                    <p className="col-s-8">{this.props.name}</p>
+                    <p className="col-s-4 text-label">Name:</p>
+                    <p className="col-s-8">{this.state.name}</p>
                 </div>
                 <div className="row">
-                    <p className="col-s-4">Description:</p>
-                    <p className="col-s-8">{this.props.description}</p>
+                    <p className="col-s-4 text-label">Description:</p>
+                    <p className="col-s-8">{this.state.description}</p>
                 </div>
                 <div className="row">
-                    <div className="interest-point-button-container">
-                        <button type="button" onClick={this.setModal}><Edit3/></button>
+                    <div className="modular-button-container">
+                        <button type="button" onClick={this.setModal} disabled={this.props.availableTagNames === null}><Edit3/></button>
                         <button type="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24"
-                                stroke-width="1" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor">
-                                <text y="20" font-size="20">あ</text>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"
+                                strokeWidth="1" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor">
+                                <text y="20" fontSize="20">あ</text>
                             </svg>
                         </button>
                         <button type="button"><Shield/></button>

@@ -7,7 +7,7 @@
     content: "";
     clear: both;
     display: table;
-  }
+}
 
 /* For mobile phones: */
 [class*="col-"] {

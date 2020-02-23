@@ -6,5 +6,6 @@ data class Translation(
 )
 
 data class Tag(
+    val english: String,
     val translations: List<Translation>
 )

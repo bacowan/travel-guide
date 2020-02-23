@@ -15,15 +15,17 @@ class InterestPointEditPage extends Component {
         this.handleInterestPointNameChange = this.handleInterestPointNameChange.bind(this);
         this.setModal = this.setModal.bind(this);
         this.modalClick = this.modalClick.bind(this);
+        this.modalClose = this.modalClose.bind(this);
         this.state = {
             header: "New Interest Point",
             interestPointName: "",
-            tags: [<InterestPointEditPageTag setModal={this.setModal}/>],
-            modal: null
+            tags: ["1"],
+            modal: null,
+            availableTagNames: null
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         this.olmap = new OlMap({
           target: this.mapRef.current,
           layers: [
@@ -35,6 +37,13 @@ class InterestPointEditPage extends Component {
             center: [this.props.location.state.lon, this.props.location.state.lat],
             zoom: 18
           })
+        });
+
+        let tagUrl = `http://localhost:8080/tags`;
+        let response = await fetch(tagUrl, {mode: 'cors'});
+        let asJson = await response.json();
+        this.setState({
+            availableTagNames: asJson.map(item => item.english)
         });
     }
 
@@ -54,11 +63,15 @@ class InterestPointEditPage extends Component {
     }
 
     modalClick(event) {
-        if (event.target.className.includes("modal-displayed")) {
-            this.setState({
-                modal: null
-            });
+        if (event.target.className != null && event.target.className.toString().includes("modal-displayed")) {
+            this.modalClose();
         }
+    }
+
+    modalClose() {
+        this.setState({
+            modal: null
+        });
     }
 
     render() {
@@ -89,7 +102,7 @@ class InterestPointEditPage extends Component {
                 <div className="row">
                     <label className="col-2">Tags:</label>
                     <div className="col-10">
-                        {this.state.tags}
+                        {this.state.tags.map(tag => <InterestPointEditPageTag setModal={this.setModal} modalClose={this.modalClose} availableTagNames={this.state.availableTagNames} key={tag}/>)}
                     </div>
                 </div>
                 <div className="row">

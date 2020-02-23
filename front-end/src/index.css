@@ -101,11 +101,11 @@ form > * {
     padding: 1em;
 }
 
-.interest-point-button-container {
+.modular-button-container {
     float: right;
 }
 
-.interest-point-button-container > * {
+.modular-button-container > * {
     margin: 0.3em;
 }
 
@@ -115,4 +115,34 @@ form > * {
     border-color: lightgray;
     border-radius: 5px;
     padding: 1em;
+}
+
+textarea {
+    resize: none;
+}
+
+.auto-complete {
+    position: absolute;
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    border-radius: 5px;
+}
+
+.auto-complete-item {
+    background: white;
+    padding: 0.3em;
+    cursor: pointer;
+}
+
+.auto-complete-item:hover {
+    background: lightgray;
+}
+
+.auto-complete-item + .auto-complete-item {
+    border-top: solid lightgray 1px;
+}
+
+.text-label {
+    font-weight: bold;
 }
