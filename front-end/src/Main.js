@@ -6,7 +6,7 @@ import {
 import Navbar from "./Navbar";
 import NearbyListPage from "./NearbyListPage";
 import MapPage from "./MapPage";
-import InterestPointEdit from "./InterestPointEdit";
+import InterestPointEditPage from "./InterestPointEditPage";
 import SignUp from "./SignUp";
 import Login from "./Login";
  
@@ -41,7 +41,7 @@ class Main extends Component {
             <Route exact path="/" component={NearbyListPage}/>
             <Route path="/NearbyListPage" component={NearbyListPage}/>
             <Route path="/MapPage" render={(props) => <MapPage {...props} bearer={this.state.bearer}/>}/>
-            <Route path="/InterestPointEdit" component={InterestPointEdit}/>
+            <Route path="/InterestPointEdit" component={InterestPointEditPage}/>
             <Route path="/SignUp" render={(props) => <SignUp {...props} bearerChanged={this.bearerChanged}/>}/>
             <Route path="/Login" render={(props) => <Login {...props} bearerChanged={this.bearerChanged}/>}/>
           </div>

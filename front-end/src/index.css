@@ -100,3 +100,19 @@ input {
 form > * {
     padding: 1em;
 }
+
+.interest-point-button-container {
+    float: right;
+}
+
+.interest-point-button-container > * {
+    margin: 0.3em;
+}
+
+.interest-point-tag-box {
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgray;
+    border-radius: 5px;
+    padding: 1em;
+}
