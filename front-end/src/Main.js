@@ -14,8 +14,11 @@ class Main extends Component {
   constructor(props) {
     super(props);
     this.bearerChanged = this.bearerChanged.bind(this);
+    this.onClickOffNavbar = this.onClickOffNavbar.bind(this);
+    this.showUserMenuChanged = this.showUserMenuChanged.bind(this);
     this.state = {
-      bearer: ""
+      bearer: "",
+      showUserMenu: false
     };
   }
 
@@ -32,12 +35,24 @@ class Main extends Component {
     });
   }
 
+  showUserMenuChanged(isOpen) {
+    this.setState({showUserMenu: isOpen});
+  }
+
+  onClickOffNavbar(event) {
+    this.showUserMenuChanged(false);
+  }
+
   render() {
     return (
       <BrowserRouter>
         <div className="router-content">
-          <Navbar bearer={this.state.bearer} bearerChanged={this.bearerChanged}/>
-          <div>
+          <Navbar
+            bearer={this.state.bearer}
+            bearerChanged={this.bearerChanged}
+            showUserMenu={this.state.showUserMenu}
+            showUserMenuChanged={this.showUserMenuChanged}/>
+          <div className="fill-rest" onClick={this.onClickOffNavbar}>
             <Route exact path="/" component={NearbyListPage}/>
             <Route path="/NearbyListPage" component={NearbyListPage}/>
             <Route path="/MapPage" render={(props) => <MapPage {...props} bearer={this.state.bearer}/>}/>

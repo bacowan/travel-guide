@@ -112,9 +112,11 @@ class InterestPointEditPage extends Component {
         if (response.readyState == XMLHttpRequest.DONE) {
             if (response.status === 200) {
                 console.log("succeeded submitting descriptions");
+                //TODO: Redirect to success page
             }
             else {
                 console.log("failed to submit descriptions");
+                //TODO: error handling
             }
         }
     }

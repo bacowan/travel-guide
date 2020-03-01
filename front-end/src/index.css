@@ -17,21 +17,29 @@ body {
 }
 
 .navbar {
+    width: 100%;
+    display: table-row;
+}
+
+.navbar > ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #333;
-    width: 100%;
-    display: table-row;
 }
 
-.navbar + * {
+.fill-rest {
     display: table-row;
     height: 100%;
 }
 
-.navbar > li a {
+/*workaround since table-row seems to only take click handlers for children*/
+.fill-rest > * {
+    height: 100%;
+}
+
+.navbar > ul > li a {
     display: block;
     color: white;
     text-align: center;
@@ -39,16 +47,29 @@ body {
     text-decoration: none;
 }
 
-.navbar > li a:hover {
+.navbar > ul > img {
+    height: 3em;
+    width: 3em;
+    padding: 0.5em;
+    border-radius: 50%;
+}
+
+.navbar > ul > *:hover {
     background-color: #111;
 }
 
-.navbar > li.navbar-left {
+.navbar > ul > .navbar-left {
     float: left;
 }
 
-.navbar > li.navbar-right {
+.navbar > ul > .navbar-right {
     float: right;
+}
+
+.vertical-navbar-list {
+    z-index: 1;
+    position: absolute;
+    right: 0px;
 }
 
 .center-content {
