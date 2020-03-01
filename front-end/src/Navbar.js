@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import './index.css'
 import './responsive.css'
 
@@ -49,7 +49,7 @@ class Navbar extends Component {
             </ul>
             {this.props.showUserMenu && isLoggedIn &&
                 <ul className="vertical-navbar-list">
-                    <li><NavLink to="/NearbyListPage">Options</NavLink></li>
+                    <li><NavLink to="/Options">Options</NavLink></li>
                     <li><NavLink to="/NearbyListPage" onClick={this.onSignOutClick}>Sign Out</NavLink></li>
                 </ul>}
             </div>

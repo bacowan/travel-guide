@@ -9,6 +9,8 @@ import MapPage from "./MapPage";
 import InterestPointEditPage from "./InterestPointEditPage";
 import SignUp from "./SignUp";
 import Login from "./Login";
+import OptionsPage from "./OptionsPage";
+import RequestPermissions from "./RequestPermissions";
  
 class Main extends Component {
   constructor(props) {
@@ -46,19 +48,21 @@ class Main extends Component {
   render() {
     return (
       <BrowserRouter>
-        <div className="router-content">
+        <div className="router-content" onClick={this.onClickOffNavbar}>
           <Navbar
             bearer={this.state.bearer}
             bearerChanged={this.bearerChanged}
             showUserMenu={this.state.showUserMenu}
             showUserMenuChanged={this.showUserMenuChanged}/>
-          <div className="fill-rest" onClick={this.onClickOffNavbar}>
+          <div className="fill-rest">
             <Route exact path="/" component={NearbyListPage}/>
             <Route path="/NearbyListPage" component={NearbyListPage}/>
             <Route path="/MapPage" render={(props) => <MapPage {...props} bearer={this.state.bearer}/>}/>
             <Route path="/InterestPointEdit" render={(props) => <InterestPointEditPage {...props} bearer={this.state.bearer}/>}/>
+            <Route path="/Options" render={(props) => <OptionsPage {...props} bearer={this.state.bearer}/>}/>
             <Route path="/SignUp" render={(props) => <SignUp {...props} bearerChanged={this.bearerChanged}/>}/>
             <Route path="/Login" render={(props) => <Login {...props} bearerChanged={this.bearerChanged}/>}/>
+            <Route path="/RequestPermissions" render={(props) => <RequestPermissions {...props} bearerChanged={this.bearerChanged}/>}/>
           </div>
         </div>
       </BrowserRouter>

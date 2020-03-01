@@ -21,6 +21,10 @@ body {
     display: table-row;
 }
 
+ul {
+    margin: 0px;
+}
+
 .navbar > ul {
     list-style-type: none;
     margin: 0;
@@ -31,11 +35,6 @@ body {
 
 .fill-rest {
     display: table-row;
-    height: 100%;
-}
-
-/*workaround since table-row seems to only take click handlers for children*/
-.fill-rest > * {
     height: 100%;
 }
 
