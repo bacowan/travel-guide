@@ -62,6 +62,7 @@ class InterestPointController {
             .body(interestPoints)
     }
 
+    // TODO: Add optional parameters for initial descriptions
     @PostMapping("/interest_points")
     fun addInterestPoint(
         @RequestBody parameters: NewInterestPointBody,
@@ -71,7 +72,7 @@ class InterestPointController {
         return if (!tooClose) {
             val user = if (authentication != null) userRepository.findByIdOrNull(authentication.name) else null
             if (user != null) {
-                val interestPoint = travelGuide.collections.InterestPoint(
+                val interestPoint = InterestPoint(
                     location = Approvable(listOf(parameters.lat, parameters.lon)),
                     name = mutableListOf(TranslationText(user.defaultLanguage, Approvable(parameters.name))),
                     subName = if (parameters.subName != null)
@@ -387,64 +388,67 @@ class InterestPointController {
     }
 
     @PutMapping("/interest_points/{id}/descriptions")
-    fun putDescription(
+    fun putDescriptions(
         @PathVariable id: String,
-        @RequestBody parameters: InterestPointDescriptionBody,
+        @RequestBody parameters: List<InterestPointDescriptionBody>,
         authentication: Authentication?): ResponseEntity<String> {
 
+        // TODO: put some kind of a limit on the number of interest points that can be added
         val interestPoint = interestPointRepository.findByIdOrNull(id)
-        return if (interestPoint != null) {
-            if (tagRepository.existsByEnglish(parameters.tag)) {
-                if (languageRepository.existsByName(parameters.language)) {
-                    val user = if (authentication != null) userRepository.findByIdOrNull(authentication.name) else null
-                    if (user != null) {
-                        val description = interestPoint.descriptions.firstOrNull { it.tag == parameters.tag }
-                        if (!parameters.approved) {
-                            if (description != null) {
-                                val translation = description.values.firstOrNull { it.language == parameters.language }
-                                if (translation == null) {
-                                    addNewTranslation(interestPoint, description, parameters, user)
-                                }
-                                else {
-                                    editTranslation(interestPoint, translation, parameters, user)
-                                }
-                            }
-                            else {
-                                addNewDescription(interestPoint, parameters, user)
-                            }
-                        }
-                        else if (user.permissions.contains("Approver")) {
-                            if (description != null) {
-                                approveDescription(interestPoint, description, parameters)
-                            }
-                            else {
-                                ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                    .body("Interest point was found, but it did not have the given tag to approve")
-                            }
-                        }
-                        else {
-                            ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                .body("Only 'Approver's can approve interest point descriptions.")
-                        }
+        val user = if (authentication != null) userRepository.findByIdOrNull(authentication.name) else null
+        return checkPreconditions(
+            notNullPrecondition(interestPoint, HttpStatus.NOT_FOUND, "Could not find interest point with the given id"),
+            notNullPrecondition(user, HttpStatus.FORBIDDEN, "Could not find the given logged in user"))
+        {
+            if (interestPoint != null && user != null) {
+                for (parameter in parameters) {
+                    val result = putDescription(interestPoint, user, parameter)
+                    if (result != null) {
+                        return@checkPreconditions result
+                    }
+                }
+                return@checkPreconditions ResponseEntity.status(HttpStatus.OK).body("success")
+            }
+            else {
+                return@checkPreconditions ResponseEntity.status(HttpStatus.FORBIDDEN).body("something went wrong")
+            }
+        }
+    }
+
+    private fun putDescription(interestPoint: travelGuide.collections.InterestPoint, user: User, parameter: InterestPointDescriptionBody)
+        : ResponseEntity<String>? {
+        return checkPreconditions(
+            Precondition({tagRepository.existsByEnglish(parameter.tag)}, HttpStatus.BAD_REQUEST, "The given tag is not a valid English tag."),
+            Precondition({languageRepository.existsByName(parameter.language)}, HttpStatus.BAD_REQUEST, "The given language is not valid."))
+        {
+            val description = interestPoint.descriptions.firstOrNull { it.tag == parameter.tag }
+            if (!parameter.approved) {
+                if (description != null) {
+                    val translation = description.values.firstOrNull { it.language == parameter.language }
+                    if (translation == null) {
+                        addNewTranslation(interestPoint, description, parameter, user)
                     }
                     else {
-                        ResponseEntity.status(HttpStatus.FORBIDDEN)
-                            .body("Could not find the given logged in user")
+                        editTranslation(interestPoint, translation, parameter, user)
                     }
                 }
                 else {
-                    ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("The given language is not valid.")
+                    addNewDescription(interestPoint, parameter, user)
+                }
+            }
+            else if (user.permissions.contains("Approver")) {
+                if (description != null) {
+                    approveDescription(interestPoint, description, parameter)
+                }
+                else {
+                    ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Interest point was found, but it did not have the given tag to approve")
                 }
             }
             else {
-                ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("The given tag is not a valid English tag.")
+                ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Only 'Approver's can approve interest point descriptions.")
             }
-        }
-        else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("Could not find interest point with the given id")
         }
     }
 

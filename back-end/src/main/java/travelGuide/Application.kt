@@ -34,9 +34,10 @@ open class Application {
         override fun configure(http: HttpSecurity) {
             http
                 .csrf().disable() // TODO: This is only for development. Should remove for production.
-                .cors().and()
+                .cors()
+            .and()
                 .addFilterAfter(JWTAuthorizationFilter(secret), UsernamePasswordAuthenticationFilter::class.java)
-                .authorizeRequests()
+            .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/authenticate").permitAll()
                 .antMatchers(HttpMethod.GET, "/interest_points").permitAll()
                 .antMatchers(HttpMethod.GET, "/tags").permitAll()
@@ -50,7 +51,7 @@ open class Application {
             val configuration = CorsConfiguration()
             configuration.allowedOrigins = listOf("http://localhost:3000")
             configuration.allowedMethods = listOf("*")
-            configuration.allowedHeaders = listOf("Content-Type")
+            configuration.allowedHeaders = listOf("Content-Type", "Authorization")
             val source = UrlBasedCorsConfigurationSource()
             source.registerCorsConfiguration("/**", configuration)
             return source

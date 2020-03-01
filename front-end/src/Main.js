@@ -41,7 +41,7 @@ class Main extends Component {
             <Route exact path="/" component={NearbyListPage}/>
             <Route path="/NearbyListPage" component={NearbyListPage}/>
             <Route path="/MapPage" render={(props) => <MapPage {...props} bearer={this.state.bearer}/>}/>
-            <Route path="/InterestPointEdit" component={InterestPointEditPage}/>
+            <Route path="/InterestPointEdit" render={(props) => <InterestPointEditPage {...props} bearer={this.state.bearer}/>}/>
             <Route path="/SignUp" render={(props) => <SignUp {...props} bearerChanged={this.bearerChanged}/>}/>
             <Route path="/Login" render={(props) => <Login {...props} bearerChanged={this.bearerChanged}/>}/>
           </div>

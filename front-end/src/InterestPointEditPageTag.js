@@ -7,10 +7,6 @@ class InterestPointEditPageTag extends Component {
         super(props);
         this.setModal = this.setModal.bind(this);
         this.confirm = this.confirm.bind(this);
-        this.state = {
-            name: "",
-            description: ""
-        };
     }
 
     setModal() {
@@ -19,11 +15,8 @@ class InterestPointEditPageTag extends Component {
         )
     }
 
-    confirm(name, description) {
-        this.setState({
-            name: name,
-            description: description
-        })
+    confirm(tag, description) {
+        this.props.setData(this.props.tag, tag, description);
     }
 
     render() {
@@ -31,11 +24,11 @@ class InterestPointEditPageTag extends Component {
             <div className="interest-point-tag-box">
                 <div className="row">
                     <p className="col-s-4 text-label">Name:</p>
-                    <p className="col-s-8">{this.state.name}</p>
+                    <p className="col-s-8">{this.props.tag}</p>
                 </div>
                 <div className="row">
                     <p className="col-s-4 text-label">Description:</p>
-                    <p className="col-s-8">{this.state.description}</p>
+                    <p className="col-s-8">{this.props.description}</p>
                 </div>
                 <div className="row">
                     <div className="modular-button-container">
