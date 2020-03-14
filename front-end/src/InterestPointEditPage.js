@@ -178,6 +178,7 @@ class InterestPointEditPage extends Component {
                     <label className="col-2">Interest Point Name:</label>
                     <div className="col-10">
                         <input
+                            type="text"
                             value={this.state.interestPointName}
                             onChange={this.handleInterestPointNameChange}
                             required/>

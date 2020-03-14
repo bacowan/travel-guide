@@ -16,6 +16,10 @@ body {
     font-family: "Trebuchet MS", Helvetica, sans-serif;
 }
 
+h2 {
+    margin: 0.3em;
+}
+
 .navbar {
     width: 100%;
     display: table-row;
@@ -113,10 +117,6 @@ ul {
     padding: 0.33em;
 }
 
-input {
-    width: 100%;
-}
-
 form > * {
     padding: 1em;
 }
@@ -165,4 +165,8 @@ textarea {
 
 .text-label {
     font-weight: bold;
+}
+
+.options-list > div {
+    margin: 0.5em;
 }

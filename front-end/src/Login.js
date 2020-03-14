@@ -46,29 +46,33 @@ class Login extends Component {
 
     render() {
         return (
-            <form className="row" onSubmit={this.handleSubmit}>
-                <h2 className="col-s-12">Login</h2>
-                <label className="col-2">Email address:</label>
-                <div className="col-10">
+            <>
+            <h2>Login</h2>
+            <form onSubmit={this.handleSubmit}>
+                <div className="row">
+                    <label className="col-2">Email address:</label>
                     <input
+                        className="col-6"
                         type="email"
                         value={this.state.email}
                         onChange={this.handleEmailChange}
                         ref={this.emailRef} required/>
                 </div>
-                <label className="col-2">Password:</label>
-                <div className="col-10">
+                <div className="row">
+                    <label className="col-2">Password:</label>
                     <input
+                        className="col-6"
                         type="password"
                         value={this.state.password}
                         onChange={this.handlePasswordChange}
                         ref={this.passwordRef}
                         required/>
                 </div>
-                <div className="col-2">
-                    <input type="submit" value="Login"/>
+                <div className="row">
+                    <input className="col-2" type="submit" value="Login"/>
                 </div>
             </form>
+            </>
         )
     }
 }

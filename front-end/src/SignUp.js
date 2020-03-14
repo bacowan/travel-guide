@@ -85,45 +85,50 @@ class SignUp extends Component {
 
     render() {
         return (
-            <form className="row" onSubmit={this.handleSubmit}>
-                <h2 className="col-s-12">Sign Up</h2>
-                <label className="col-2">Email address:</label>
-                <div className="col-10">
+            <>
+            <h2>Sign Up</h2>
+            <form onSubmit={this.handleSubmit}>
+                <div className="row">
+                    <label className="col-2">Email address:</label>
                     <input
+                        className="col-6"
                         type="email"
                         value={this.state.email}
                         onChange={this.handleEmailChange}
                         ref={this.emailRef} required/>
                 </div>
-                <label className="col-2">Language:</label>
-                <div className="col-10">
-                    <select name="language" onChange={this.handleLanguageChange}>
+                <div className="row">
+                    <label className="col-2">Language:</label>
+                    <select className="col-6" name="language" onChange={this.handleLanguageChange}>
                         <option name="English">English</option>
                         <option name="日本語">日本語</option>
                     </select>
                 </div>
-                <label className="col-2">Password:</label>
-                <div className="col-10">
+                <div className="row">
+                    <label className="col-2">Password:</label>
                     <input
+                        className="col-6"
                         type="password"
                         value={this.state.password}
                         onChange={this.handlePasswordChange}
                         ref={this.passwordRef}
                         required/>
                 </div>
-                <label className="col-2">Retype Password:</label>
-                <div className="col-10">
+                <div className="row">
+                    <label className="col-2">Retype Password:</label>
                     <input
+                        className="col-6"
                         type="password"
                         value={this.state.retypePassword}
                         onChange={this.handleRetypePasswordChange}
                         ref={this.retypePasswordRef}
                         required/>
                 </div>
-                <div className="col-2">
-                    <input type="submit" value="Sign Up"/>
+                <div className="row">
+                    <input className="col-2" type="submit" value="Sign Up"/>
                 </div>
             </form>
+            </>
         )
     }
 }

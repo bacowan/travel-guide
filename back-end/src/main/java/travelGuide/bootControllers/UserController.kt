@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.*
 import travelGuide.collections.User
+import travelGuide.enums.Permission
 import travelGuide.repositories.LanguageRepository
 import travelGuide.repositories.UserRepository
 import java.security.Principal
@@ -21,12 +22,12 @@ import java.security.Principal
 open class UserController {
     @Autowired
     lateinit var passwordEncoder: PasswordEncoder
-
     @Autowired
     lateinit var repository: UserRepository
-
     @Autowired
     lateinit var languageRepository: LanguageRepository
+    @Autowired
+    private lateinit var userRepository: UserRepository
 
     @GetMapping("/users/{id}")
     fun getUser(
@@ -58,9 +59,10 @@ open class UserController {
     @PutMapping("/users/{id}")
     fun updateUser(
         @PathVariable id: String,
-        @RequestBody parameters: UserPutBody): ResponseEntity<String> {
+        @RequestBody parameters: UserPutBody,
+        authentication: Authentication?): ResponseEntity<String> {
 
-        val user = repository.findByIdOrNull(id);
+        val user = repository.findByIdOrNull(id)
         return if (user != null) {
             if (parameters.email != null) {
                 user.email = parameters.email
@@ -74,11 +76,9 @@ open class UserController {
                         .body("The given language is not supported")
                 }
             }
+            // TODO: validation
             if (parameters.defaultTags != null) {
                 user.defaultTags = parameters.defaultTags
-            }
-            if (parameters.permissions != null) {
-                user.permissions = parameters.permissions
             }
             repository.save(user)
             ResponseEntity.status(HttpStatus.OK)
@@ -128,5 +128,4 @@ data class UserPostBody(
 data class UserPutBody(
     val email: String?,
     val defaultLanguage: String?,
-    val permissions: List<String>?,
     val defaultTags: List<String>?)

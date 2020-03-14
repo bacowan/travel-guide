@@ -46,6 +46,7 @@ class Main extends Component {
   }
 
   render() {
+    var userId = getUserIdFromBearerToken(this.state.bearer);
     return (
       <BrowserRouter>
         <div className="router-content" onClick={this.onClickOffNavbar}>
@@ -59,10 +60,10 @@ class Main extends Component {
             <Route path="/NearbyListPage" component={NearbyListPage}/>
             <Route path="/MapPage" render={(props) => <MapPage {...props} bearer={this.state.bearer}/>}/>
             <Route path="/InterestPointEdit" render={(props) => <InterestPointEditPage {...props} bearer={this.state.bearer}/>}/>
-            <Route path="/Options" render={(props) => <OptionsPage {...props} bearer={this.state.bearer}/>}/>
+            <Route path="/Options" render={(props) => <OptionsPage {...props} bearer={this.state.bearer} userId={userId}/>}/>
             <Route path="/SignUp" render={(props) => <SignUp {...props} bearerChanged={this.bearerChanged}/>}/>
             <Route path="/Login" render={(props) => <Login {...props} bearerChanged={this.bearerChanged}/>}/>
-            <Route path="/RequestPermissions" render={(props) => <RequestPermissions {...props} bearerChanged={this.bearerChanged}/>}/>
+            <Route path="/RequestPermissions" render={(props) => <RequestPermissions {...props} bearer={this.state.bearer} userId={userId}/>}/>
           </div>
         </div>
       </BrowserRouter>
@@ -85,6 +86,17 @@ function getCookie(cname) {
       }
   }
   return "";
+}
+
+function getUserIdFromBearerToken(token) {
+  const payload = token.split('.')[1];
+  if (payload !== undefined) {
+    const asJson = JSON.parse(window.atob(payload));
+    return asJson.sub;
+  }
+  else {
+    return null;
+  }
 }
  
 export default Main;

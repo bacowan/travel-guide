@@ -43,6 +43,7 @@ open class Application {
                 .antMatchers(HttpMethod.GET, "/tags").permitAll()
                 .antMatchers(HttpMethod.POST, "/users").permitAll()
                 .antMatchers(HttpMethod.GET, "/users/{id}").access("@securityService.matchesUser(authentication, #id)")
+                .antMatchers(HttpMethod.PUT, "/permissions/{userId}").access("@securityService.matchesUser(authentication, #userId)")
                 .anyRequest().authenticated()
         }
 
